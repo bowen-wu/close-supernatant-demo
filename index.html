@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>close-supernatant</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div id="wrapper" class="wrapper">
+        <button type="button" id="button" class="btn btn-info">Toggle</button>
+        <div id="supernatant" class="supernatant">
+            <span>我是浮层</span>
+            <div class="triangle"></div>
+        </div>
+    </div>
+    <button type="button" id="toggleMethod" class="toggleMethod btn btn-primary btn-lg btn-block">切换方法</button>
+    <ul id="methods" class="methods clearfix">
+        <li class="active">
+            <h2>第一种方法</h2>
+            <p>外层阻止事件冒泡，监听 document click 事件</p><br>
+            <pre>
+function first() {
+    $button.on('click', () => {
+        let flag = true
+        if (flag) {
+            $supernatant.addClass('active')
+            flag = false
+        } else {
+            $supernatant.removeClass('active')
+            flag = true
+        }
+    })
+    $wrapper.on('click', (event) => {
+        event.stopPropagation()
+    })
+    $(document).on('click', () => {
+        console.log(1)
+        $supernatant.removeClass('active')
+        flag = true
+    })
+}
+            </pre>
+        </li>
+        <li>
+            <h2>第二种方法</h2>
+            <p>外层阻止事件冒泡，在按钮点击时仅添加一次 document click 事件。</p>
+            <p>此处的阻止事件冒泡有两个作用：</p>
+            <p>1. 按钮点击时防止触发刚刚添加的 document click 事件</p>
+            <p>2. 点击浮层，浮层不得关闭</p><br>
+            <pre>
+function second() {
+    let flag = true
+    $button.on('click', () => {
+        if (flag) {
+            $supernatant.addClass('active')
+            flag = false
+            $(document).one('click', () => {
+                $supernatant.removeClass('active')
+                flag = true
+            })
+        } else {
+            $supernatant.removeClass('active')
+            flag = true
+        }
+    })
+    $wrapper.on('click', (event) => {
+        event.stopPropagation()
+    })
+}
+            </pre>
+        </li>
+        <li>
+            <h2>第三种方法</h2>
+            <p>使用 <span>setTimeout 异步处理</span>，此时可以不使用阻止事件冒泡，因为是异步的<!--
+            -->所以在 button 点击的时候 document click 事件并没有添加进来</p>
+            <p>此处的阻止事件冒泡作用：</p>
+            <p>满足”点击浮层，浮层不得关闭“需求</p><br>
+            <pre>
+function third() {
+    let flag = true
+    $button.on('click', () => {
+        if (flag) {
+            $supernatant.addClass('active')
+            flag = false
+            setTimeout(() => {
+                $(document).one('click', () => {
+                    $supernatant.removeClass('active')
+                    flag = true
+                })
+            }, 0)
+        } else {
+            $supernatant.removeClass('active')
+            flag = true
+        }
+    })
+    $wrapper.on('click', (event) => {
+        event.stopPropagation()
+    })
+}
+            </pre>
+        </li>
+    </ul>
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/main.js"></script>
+</body>
+</html>
